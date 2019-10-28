@@ -103,8 +103,14 @@ venv.bak/
 # mypy
 .mypy_cache/
 
+# VS Code
+.vscode
+
 # Mac OSX
 .DS_Store
 
 # Datasets
 datasets/
+
+# Models
+models/
