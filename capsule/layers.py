@@ -47,9 +47,9 @@ class PrimaryCaps(nn.Module):
         output = torch.stack(output, dim=1)
         output = output.view(x.size(0), -1, self.out_channels)
         
-        return self.activation(output)
+        return self.squash_relu(output)
     
-    def activation(self, x):
+    def squash(self, x):
         '''Squash'''
         
         squared_norm = (x**2).sum(-1, keepdim=True) + 1e-18
@@ -58,6 +58,12 @@ class PrimaryCaps(nn.Module):
         unit = x / torch.sqrt(squared_norm)
         
         return scale * unit
+
+    def squash_relu(self, x):
+        '''Squash ReLU'''
+
+        return torch.clamp(x, min=0)
+
 
 class DigitCaps(nn.Module):
     '''Digit Capsules'''
@@ -93,11 +99,11 @@ class DigitCaps(nn.Module):
             
             if iteration == self.r - 1:
                 s_j = (u_hat @ c_ij).sum(dim=1)
-                v_j = self.activation(s_j)
+                v_j = self.squash_relu(s_j)
             else:
                 with torch.no_grad():
                     s_j = (u_hat @ c_ij).sum(dim=1)
-                    v_j = self.activation(s_j)
+                    v_j = self.squash_relu(s_j)
                     
                     d = u_hat.transpose(3, 4) @ torch.stack([v_j] * self.num_inputs_per_capsule, dim=1)
                     b_ij = b_ij + d.squeeze(4).squeeze(3).mean(dim=0)
@@ -116,7 +122,7 @@ class DigitCaps(nn.Module):
         # Dynamic Routing
         return self.routing(u_hat)
         
-    def activation(self, x):
+    def squash(self, x):
         '''Squash'''
         
         squared_norm = (x**2).sum(-1, keepdim=True) + 1e-18
@@ -125,6 +131,11 @@ class DigitCaps(nn.Module):
         unit = x / torch.sqrt(squared_norm)
         
         return scale * unit
+
+    def squash_relu(self, x):
+        '''Squash ReLU'''
+
+        return torch.clamp(x, min=0)
 
 class Decoder(nn.Module):
     '''Capsule Net Decoder'''
