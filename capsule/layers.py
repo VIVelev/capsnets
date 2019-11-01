@@ -10,6 +10,9 @@ __all__ = [
 ]
 
 
+# ====================================================================================================
+# ====================================================================================================
+
 class ConvLayer(nn.Module):
     '''A Convolutional Layer'''
     
@@ -20,6 +23,8 @@ class ConvLayer(nn.Module):
         
     def forward(self, x):
         return F.relu(self.conv(x))
+
+# ====================================================================================================
 
 class PrimaryCaps(nn.Module):
     '''Primary Capsules'''
@@ -47,7 +52,7 @@ class PrimaryCaps(nn.Module):
         output = torch.stack(output, dim=1)
         output = output.view(x.size(0), -1, self.out_channels)
         
-        return self.squash_relu(output)
+        return self.squash(output)
     
     def squash(self, x):
         '''Squash'''
@@ -59,11 +64,7 @@ class PrimaryCaps(nn.Module):
         
         return scale * unit
 
-    def squash_relu(self, x):
-        '''Squash ReLU'''
-
-        return torch.clamp(x, min=0)
-
+# ====================================================================================================
 
 class DigitCaps(nn.Module):
     '''Digit Capsules'''
@@ -99,11 +100,11 @@ class DigitCaps(nn.Module):
             
             if iteration == self.r - 1:
                 s_j = (u_hat @ c_ij).sum(dim=1)
-                v_j = self.squash_relu(s_j)
+                v_j = self.squash(s_j)
             else:
                 with torch.no_grad():
                     s_j = (u_hat @ c_ij).sum(dim=1)
-                    v_j = self.squash_relu(s_j)
+                    v_j = self.squash(s_j)
                     
                     d = u_hat.transpose(3, 4) @ torch.stack([v_j] * self.num_inputs_per_capsule, dim=1)
                     b_ij = b_ij + d.squeeze(4).squeeze(3).mean(dim=0)
@@ -132,10 +133,7 @@ class DigitCaps(nn.Module):
         
         return scale * unit
 
-    def squash_relu(self, x):
-        '''Squash ReLU'''
-
-        return torch.clamp(x, min=0)
+# ====================================================================================================
 
 class Decoder(nn.Module):
     '''Capsule Net Decoder'''
@@ -162,3 +160,5 @@ class Decoder(nn.Module):
         mask = F.one_hot(y, self.num_capsules).float().unsqueeze(-1)
         
         return self.reconstruction_layers((x * mask).view(x.size(0), -1))
+
+# ====================================================================================================
