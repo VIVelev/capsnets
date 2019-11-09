@@ -16,6 +16,8 @@ __all__ = [
 
     'imshow',
 
+    'get_train_set_loader',
+    'get_test_set_loader',
     'get_set_loaders',
 ]
 
@@ -38,13 +40,13 @@ def get_transform():
 
 # ====================================================================================================
 
-def get_train_set(path='./datasets', download=True):
+def get_train_set(path='../datasets', download=True):
     return datasets.MNIST(path, train=True, download=download, transform=get_transform())
 
-def get_test_set(path='./datasets', download=True):
+def get_test_set(path='../datasets', download=True):
     return datasets.MNIST(path, train=False, download=download, transform=get_transform())
 
-def get_sets(path='./datasets', download=True):
+def get_sets(path='../datasets', download=True):
     return (
         get_train_set(path, download),
         get_test_set(path, download),
