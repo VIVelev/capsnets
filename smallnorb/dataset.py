@@ -1,13 +1,25 @@
+""" Code taken from `https://github.com/ndrplz/small_norb`
+"""
+
 import struct
-import numpy as np
+from itertools import groupby
+from os import makedirs
+from os.path import exists, join
+
 import matplotlib.pyplot as plt
+import numpy as np
+
 import scipy.misc
 from tqdm import tqdm
-from os import makedirs
-from os.path import join
-from os.path import exists
-from itertools import groupby
 
+__all__ = [
+    'SmallNORBExample',
+    'SmallNORBDataset',
+]
+
+
+# ====================================================================================================
+# ====================================================================================================
 
 class SmallNORBExample:
 
@@ -36,6 +48,7 @@ class SmallNORBExample:
     def pose(self):
         return np.array([self.elevation, self.azimuth, self.lighting], dtype=np.float32)
 
+# ====================================================================================================
 
 class SmallNORBDataset:
 
@@ -345,3 +358,5 @@ class SmallNORBDataset:
                     examples[r, c] = info
 
         return examples
+
+# ====================================================================================================
