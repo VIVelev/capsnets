@@ -12,15 +12,15 @@ __all__ = [
 class CapsNet(nn.Module):
     '''Capsule Network'''
     
-    def __init__(self, num_capsules=10, cuda=False):
+    def __init__(self, num_capsules=10, in_channels=1, num_inputs_per_capsule=32*6*6, out_dim=28*28, cuda=False):
         super(CapsNet, self).__init__()
 
         CapsNet.num_capsules = num_capsules
         
-        self.conv_layer = ConvLayer()
+        self.conv_layer = ConvLayer(in_channels=in_channels)
         self.primary_capsules = PrimaryCaps()
-        self.digit_capsules = DigitCaps(cuda=cuda)
-        self.decoder = Decoder()
+        self.digit_capsules = DigitCaps(num_capsules=num_capsules, num_inputs_per_capsule=num_inputs_per_capsule, cuda=cuda)
+        self.decoder = Decoder(num_capsules=num_capsules, out_dim=out_dim)
 
     def forward(self, x, y=None):
         x = self.conv_layer(x)
