@@ -67,15 +67,18 @@ class Paint:
         self.c.postscript(file='out.eps')
 
         # Load NP Array
-        self.image = Image.open('out.eps').convert('L').resize(Paint.TARGET_SIZE)
-        self.image.save('out.jpg')
+        self.image = Image.open('out.eps').convert('RGB').convert('LA').resize(Paint.TARGET_SIZE).getdata(band=0)
+        self.image = np.reshape(self.image, Paint.TARGET_SIZE)
+
+    def run_capsnet(self):
+        self.save_load_image()
+        input = torch.tensor(self.image, dtype=torch.float32).unsqueeze(0).unsqueeze(0)
+        _, norm, _ = self.net(input)
+        print(norm.argmax().item())
 
     def reset(self, event):
         # CapsNet
-        self.save_load_image()
-        input = torch.tensor(np.array(self.image), dtype=torch.float32).unsqueeze(0).unsqueeze(0)
-        _, norm, _ = self.net(input)
-        print(norm.argmax().item())
+        self.run_capsnet()
 
         # Reset
         self.old_x, self.old_y = None, None
